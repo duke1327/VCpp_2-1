@@ -6,9 +6,15 @@
 
 #include <windows.h>
 
+POINT check = { 0 };
 POINT start = { 0 };
 POINT end = { 0 };
-int mousePressed = 0;
+POINT st = { 0 };
+POINT en = { 0 };
+POINT dist = { 0 };
+
+int LMousePressed = 0;
+int rectCheck = 0;
 
 // 윈도우의 이벤트를 처리하는 콜백(Callback) 함수.
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -18,50 +24,63 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			start.x = LOWORD(lParam);
 			start.y = HIWORD(lParam);
-			mousePressed = 1;
+			LMousePressed = 1;
 		}
 		break;
+	case WM_RBUTTONDOWN:
+		{
+			check.x = LOWORD(lParam);
+			check.y = HIWORD(lParam);
+			if (start.x < check.x < end.x && start.y < check.y < end.y) {
+				rectCheck = 1;
+			}
+		}
 	case WM_MOUSEMOVE: // 실시간으로 끝위치 변경
 		{
-			if (mousePressed) {
+			if (LMousePressed) {
 				end.x = LOWORD(lParam);
 				end.y = HIWORD(lParam);
-				}
+				InvalidateRect(hwnd, NULL, TRUE);
+			}
+			else if (rectCheck) {
+				st = start;
+				en = end;
+			}
 		}
 		break;
 	case WM_LBUTTONUP:
-		{
-			mousePressed = 0;
-			// WM_PAINT 메시지를 유발하여 네모를 화면에 그립니다.
-			InvalidateRect(hwnd, NULL, TRUE);
-		}
+		LMousePressed = 0;
+		break;
+	case WM_RBUTTONUP:
+		rectCheck = 0;
 		break;
 	case WM_PAINT:
 		{
 			HDC hdc = GetDC(hwnd);
-			HBRUSH hBrush = CreateSolidBrush(RGB(28, 219, 241)); // 옥색 브러시 생성
-			RECT rect;
-			GetClientRect(hwnd, &rect);
-			FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1)); // 화면 깨끗하게
+			if (LMousePressed) {
+				HBRUSH hBrush = CreateSolidBrush(RGB(28, 219, 241)); // 옥색 브러시 생성
+				RECT rect;
+				GetClientRect(hwnd, &rect);
+				FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1)); // 화면 깨끗하게
 
-			//MoveToEx(hdc, start.x, start.y, NULL); // 선 긋기
-			//LineTo(hdc, end.x, end.y);
+				//MoveToEx(hdc, start.x, start.y, NULL); // 선 긋기
+				//LineTo(hdc, end.x, end.y);
 
-			//rect = { start.x, start.y, end.x, end.y }; // 네모 만들기
-			//FillRect(hdc, &rect, hBrush); // 사각형을 옥색으로 채우기
+				RECT rect2 = { start.x, start.y, end.x, end.y }; // 네모 만들기
+				FillRect(hdc, &rect2, hBrush); // 사각형을 옥색으로 채우기
 
-			SelectObject(hdc, hBrush);
-			Ellipse(hdc, start.x, start.y, end.x, end.y); // 타원 만들기
-			DeleteObject(hBrush);
-
-			ReleaseDC(hwnd, hdc);
+				ReleaseDC(hwnd, hdc);
+			}
 		}
+		break;
 	default:
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}
+
+	return S_OK;
 }
 #ifdef UNICODE
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow)
 #else
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 #endif
