@@ -1,7 +1,16 @@
-﻿#ifdef UNICODE
+﻿//#define DEBUG
+#ifdef UNICODE
+#ifdef DEBUG
 #pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:console")
 #else
+#pragma comment(linker, "/entry:wWinMainCRTStartup /subsystem:WINDOWS")
+#endif // DEBUG
+#else
+#ifdef DEBUG
 #pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+#else
+#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:WINDOWS")
+#endif // DEBUG
 #endif
 
 #include <windows.h>
@@ -9,50 +18,62 @@
 POINT startPoint = { 0 };
 POINT endPoint = { 0 };
 int isKeyPressed = 0;
-int isRKeyPressed = 0;
+
+RECT rect_user = { 5, 5, 10, 10 }; // 왼쪽 상단 좌표 (50, 50)에서 오른쪽 하단 좌표 (150, 150)까지의 사각형
+RECT rect_target = { 50, 50, 150, 150 }; // 왼쪽 상단 좌표 (50, 50)에서 오른쪽 하단 좌표 (150, 150)까지의 사각형
 
 // 윈도우의 이벤트를 처리하는 콜백(Callback) 함수.
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc = GetDC(hwnd);
-	RECT rect_user = { 5, 5, 10, 10 }; // 왼쪽 상단 좌표 (5, 5)에서 오른쪽 하단 좌표 (10, 10)까지의 사각형
-	RECT rect_chUser = rect_user;
-	RECT rect_target = { 150, 150, 300, 300 }; // 왼쪽 상단 좌표 (150, 150)에서 오른쪽 하단 좌표 (150, 150)까지의 사각형
+
 	HBRUSH hBrush_user = CreateSolidBrush(RGB(0, 0, 255));
 	HBRUSH hBrush_target = CreateSolidBrush(RGB(255, 0, 255));
 	HBRUSH hBrush_eraser = CreateSolidBrush(RGB(255, 255, 255));
-
+	const wchar_t* text = L"Crash!!!";
 
 	switch (uMsg)
 	{
 	case WM_KEYDOWN:
-		switch (wParam)
+		isKeyPressed = 1;
+		if (wParam == VK_RIGHT)
 		{
-		case VK_RIGHT:
-			rect_chUser.left += 5;
-			rect_chUser.right += 5;
-			isRKeyPressed = 1;
-			break;
+			rect_user.left += 1;
+			rect_user.right += 1;
+			InvalidateRect(hwnd, NULL, TRUE);
+		}
+		else if (wParam == VK_LEFT)
+		{
+			rect_user.left -= 1;
+			rect_user.right -= 1;
+			InvalidateRect(hwnd, NULL, TRUE);
+		}
+		else if (wParam == VK_UP)
+		{
+			rect_user.top -= 1;
+			rect_user.bottom -= 1;
+			InvalidateRect(hwnd, NULL, TRUE);
+		}
+		else if (wParam == VK_DOWN)
+		{
+			rect_user.top += 1;
+			rect_user.bottom += 1;
+			InvalidateRect(hwnd, NULL, TRUE);
 		}
 		break;
 	case WM_KEYUP:
-		switch (wParam)
-		{
-		case VK_RIGHT:
-			isRKeyPressed = 0;
-			break;
-		}
+		isKeyPressed = 0;
 		break;
 	case WM_PAINT:
 	{
-		FillRect(hdc, &rect_target, hBrush_target);
-		if (isRKeyPressed)
+		if (PtInRect(&rect_target, { rect_user.left,rect_user.top }) && PtInRect(&rect_target, { rect_user.right,rect_user.bottom }))
 		{
-			FillRect(hdc, &rect_user, hBrush_eraser);
-			FillRect(hdc, &rect_chUser, hBrush_user);
-			rect_user = rect_chUser;
+			TextOut(hdc, 10, 10, text, lstrlen(text));
+			FillRect(hdc, &rect_user, hBrush_user);
 		}
 
+		FillRect(hdc, &rect_user, hBrush_user);
+		FillRect(hdc, &rect_target, hBrush_target);
 	}
 	break;
 	case WM_CLOSE:
