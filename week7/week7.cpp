@@ -4,18 +4,12 @@
 // 전역 변수
 HINSTANCE hInst;
 HWND hWnd;
-HWND hButton1, hButton2, hButton3, hButton4;
-HBRUSH hBrush_red = CreateSolidBrush(RGB(255, 0, 0)); // 빨간색 박스
-HBRUSH hBrush_blue = CreateSolidBrush(RGB(0, 0, 255)); // 파랑색 박스
-HBRUSH hBrush_green = CreateSolidBrush(RGB(0, 255, 0)); // 초록색 박스
+HWND hButton1, hButton2, hButton3, hButton4, hButton5, hButtonc1, hButtonc2, hButtonc3;
 POINT startPoint = { 0 };
 POINT endPoint = { 0 };
 POINT startPoint2 = { 0 };
 POINT endPoint2 = { 0 };
 
-// 박스를 나타내는 변수
-bool isBoxVisible = false;
-bool isEllipseVisible = false;
 bool isMouseLButtonPressed = false;
 
 int mode = 0;
@@ -44,21 +38,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         isMouseLButtonPressed = false;
         break;
     case WM_COMMAND:
+        //도형변경
         if (LOWORD(wParam) == 1) {
-            // 첫 번째 버튼 클릭
             mode = 1;
         }
         else if (LOWORD(wParam) == 2) {
-            // 두 번째 버튼 클릭
             mode = 2;
         }
         else if (LOWORD(wParam) == 3) {
-            // 세 번째 버튼 클릭
             mode = 3;
         }
         else if (LOWORD(wParam) == 4) {
-            // 네 번째 버튼 클릭
+            mode = 4;
+        }
+        else if (LOWORD(wParam) == 5) {
+            mode = 5;
+        }
+        //색깔변경
+        if (LOWORD(wParam) == 31) {
             colorMode = 1;
+        }
+        else if (LOWORD(wParam) == 32) {
+            colorMode = 2;
+        }
+        else if (LOWORD(wParam) == 33) {
+            colorMode = 3;
         }
         break;
 
@@ -74,6 +78,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         if (colorMode == 1) {
             hBrush = CreateSolidBrush(RGB(0, 0, 255));
         }
+        else if (colorMode == 2) {
+            hBrush = CreateSolidBrush(RGB(244, 238, 221));
+        }
+        else if (colorMode == 3) {
+            hBrush = CreateSolidBrush(RGB(225, 167, 250));
+        }
         else {
             hBrush = CreateSolidBrush(RGB(28, 219, 241));
         }
@@ -84,69 +94,55 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             startPoint2.y = startPoint.y - 30;
             endPoint2.x = endPoint.x + 30;
             endPoint2.y = endPoint.y - 30;
-            /*POINT vertices1[4] = {
-                {endPoint.x,startPoint.y},
-                {endPoint.x,endPoint.y},
-                {endPoint2.x,endPoint2.y},
-                {endPoint2.x,startPoint2.y}
-            };
-            POINT vertices2[4] = {
-                {startPoint.x, startPoint.y},
-                {startPoint2.x,startPoint2.y},
-                {endPoint2.x,startPoint2.y},
-                {endPoint.x,startPoint.y}
-            };
-            POINT vertices3[4] = {
-                {startPoint.x, startPoint.y},
-                {startPoint2.x,startPoint2.y},
-                {startPoint2.x,endPoint2.y},
-                {startPoint.x,endPoint.y}
-            };
-            POINT vertices4[4] = {
-                {startPoint.x,endPoint.y},
-                {startPoint2.x,endPoint2.y},
-                {endPoint2.x,endPoint2.y},
-                {endPoint.x,endPoint.y}
-            };
-            Rectangle(hdc, startPoint2.x, startPoint2.y, endPoint2.x, endPoint2.y);
-            Polygon(hdc, vertices4, 4);
-            Polygon(hdc, vertices3, 4);
-            Polygon(hdc, vertices2, 4);
-            Polygon(hdc, vertices1, 4);
-            Rectangle(hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);*/
+
             POINT vertices[6][4] = {
-            {{startPoint2.x,startPoint2.y},
-             {startPoint2.x,endPoint2.y},
-             {endPoint2.x,endPoint2.y},
-             {endPoint2.x,startPoint2.y}},
-
-            {{startPoint.x,endPoint.y},
-             {startPoint2.x,endPoint2.y},
-             {endPoint2.x,endPoint2.y},
-             {endPoint.x,endPoint.y}},
-
+            //뒷면
+            {{startPoint2.x, startPoint2.y},
+             {startPoint2.x, endPoint2.y},
+             {endPoint2.x, endPoint2.y},
+             {endPoint2.x, startPoint2.y}},
+            //아랫면
+            {{startPoint.x, endPoint.y},
+             {startPoint2.x, endPoint2.y},
+             {endPoint2.x, endPoint2.y},
+             {endPoint.x, endPoint.y}},
+            //왼쪽면
             {{startPoint.x, startPoint.y},
-             {startPoint2.x,startPoint2.y},
-             {startPoint2.x,endPoint2.y},
-             {startPoint.x,endPoint.y}},
-
+             {startPoint2.x, startPoint2.y},
+             {startPoint2.x, endPoint2.y},
+             {startPoint.x, endPoint.y}},
+            //오른쪽면
+             {{endPoint.x, startPoint.y},
+             {endPoint.x, endPoint.y},
+             {endPoint2.x, endPoint2.y},
+             {endPoint2.x, startPoint2.y}},
+            //윗면
             {{startPoint.x, startPoint.y},
-             {startPoint2.x,startPoint2.y},
-             {endPoint2.x,startPoint2.y},
-             {endPoint.x,startPoint.y}},
-
-            {{endPoint.x,startPoint.y},
-             {endPoint.x,endPoint.y},
-             {endPoint2.x,endPoint2.y},
-             {endPoint2.x,startPoint2.y}},
-
-            {{startPoint.x,startPoint.y},
-             {startPoint.x,endPoint.y},
-             {endPoint.x,endPoint.y},
-             {endPoint.x,startPoint.y}}
+             {startPoint2.x, startPoint2.y},
+             {endPoint2.x, startPoint2.y},
+             {endPoint.x, startPoint.y}},
+            //앞면
+            {{startPoint.x, startPoint.y},
+             {startPoint.x, endPoint.y},
+             {endPoint.x, endPoint.y},
+             {endPoint.x, startPoint.y}}
             };
-            for (int i = 0; i < 6; i++) {
-                Polygon(hdc, vertices[i], 4);
+
+            if (startPoint.y > endPoint.y) {
+                POINT temp[4];
+                for (int i = 0; i < 4; i++) {
+                    temp[i] = vertices[1][i];
+                    vertices[1][i] = vertices[4][i];
+                    vertices[4][i] = temp[i];
+                }
+                for (int j = 0; j < 6; j++) {
+                    Polygon(hdc, vertices[j], 4);
+                }
+            }
+            else {
+                for (int i = 0; i < 6; i++) {
+                    Polygon(hdc, vertices[i], 4);
+                }
             }
         }
         else if (mode == 2) {
@@ -154,6 +150,47 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         }
         else if (mode == 3) {
             Ellipse(hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+        }
+        else if (mode == 4) {
+            POINT tri1[3] = {
+                {(endPoint.x + startPoint.x) / 2, startPoint.y},
+                {startPoint.x, endPoint.y},
+                {endPoint.x, endPoint.y}
+            };
+            POINT tri2[3] = {
+                {(startPoint.x + endPoint.x) / 2, endPoint.y},
+                {startPoint.x, startPoint.y},
+                {endPoint.x, startPoint.y}
+            };
+            if (startPoint.y > endPoint.y) {
+                Polygon(hdc, tri2, 3);
+            }
+            else {
+                Polygon(hdc, tri1, 3);
+            }
+        }
+        /* // 폐기작 ???????????????
+        else if (mode == 5) {
+            long dx = (startPoint.x + endPoint.x);
+            long dy = (startPoint.y + endPoint.y);
+            POINT star[10] = {
+                //맨 위부터 시작 오른쪽으로 진행
+                {dx / 2, startPoint.y},
+                {dx / 3 * 2, dy / 5 * 2},
+                {endPoint.x, dy / 5 * 2 + 5},
+                {dx / 7 * 5, dy / 3 * 2},
+                {dx / 4 * 3, endPoint.y},
+                {dx / 2, dy / 4 * 3},
+                {dx / 4, endPoint.y},
+                {dx / 7 * 2, dy / 3 * 2},
+                {startPoint.x, dy / 5 * 2 + 5},
+                {dx / 3, dy / 5 * 2}
+            };
+            Polygon(hdc, star, 10);
+        }
+        */
+        else if (mode == 5) {
+            
         }
         DeleteObject(hBrush);
         EndPaint(hWnd, &ps);
@@ -181,20 +218,36 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
     }
 
     hButton1 = CreateWindow(
-        L"BUTTON", L"Add Box", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 20, 60, 60, hWnd, (HMENU)1, hInstance, NULL);
+        L"BUTTON", L"hexahedron", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 20, 80, 80, hWnd, (HMENU)1, hInstance, NULL);
 
     hButton2 = CreateWindow(
         L"BUTTON", L"rectangle", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 100, 60, 60, hWnd, (HMENU)2, hInstance, NULL);
+        20, 120, 80, 80, hWnd, (HMENU)2, hInstance, NULL);
 
     hButton3 = CreateWindow(
         L"BUTTON", L"ellipse", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 180, 60, 60, hWnd, (HMENU)3, hInstance, NULL);
+        20, 220, 80, 80, hWnd, (HMENU)3, hInstance, NULL);
 
     hButton4 = CreateWindow(
+        L"BUTTON", L"triangle", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 320, 80, 80, hWnd, (HMENU)4, hInstance, NULL);
+
+    hButton5 = CreateWindow(
+        L"BUTTON", L"star", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 420, 80, 80, hWnd, (HMENU)5, hInstance, NULL);
+
+    hButtonc1 = CreateWindow(
         L"BUTTON", L"blue", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 260, 60, 60, hWnd, (HMENU)4, hInstance, NULL);
+        120, 20, 80, 80, hWnd, (HMENU)31, hInstance, NULL);
+
+    hButtonc2 = CreateWindow(
+        L"BUTTON", L"ivory", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        120, 120, 80, 80, hWnd, (HMENU)32, hInstance, NULL);
+
+    hButtonc3 = CreateWindow(
+        L"BUTTON", L"lightpurple", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        120, 220, 80, 80, hWnd, (HMENU)33, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
