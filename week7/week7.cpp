@@ -1,83 +1,164 @@
 ﻿#include <windows.h>
+#include <cmath>
 
 // 전역 변수
 HINSTANCE hInst;
 HWND hWnd;
-HWND hButton1, hButton2, hButton3;
+HWND hButton1, hButton2, hButton3, hButton4;
 HBRUSH hBrush_red = CreateSolidBrush(RGB(255, 0, 0)); // 빨간색 박스
 HBRUSH hBrush_blue = CreateSolidBrush(RGB(0, 0, 255)); // 파랑색 박스
 HBRUSH hBrush_green = CreateSolidBrush(RGB(0, 255, 0)); // 초록색 박스
 POINT startPoint = { 0 };
 POINT endPoint = { 0 };
+POINT startPoint2 = { 0 };
+POINT endPoint2 = { 0 };
 
 // 박스를 나타내는 변수
 bool isBoxVisible = false;
 bool isEllipseVisible = false;
 bool isMouseLButtonPressed = false;
 
-// 박스 그리기 함수
-void DrawBox(HWND hWnd, HDC hdc) {
-    RECT rect;
-    GetClientRect(hWnd, &rect);
-
-    if (isBoxVisible) {
-        // 박스 그리기
-
-        SelectObject(hdc, hBrush_red);
-        Rectangle(hdc, 80, 20, 140, 80);
-        DeleteObject(hBrush_red);
-    }
-}
-
-void DrawEllipse(HWND hWnd, HDC hdc, POINT startPoint, POINT endPoint) {
-    if (isEllipseVisible) {
-        // 타원 그리기
-        SelectObject(hdc, hBrush_blue);
-        Ellipse(hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
-        DeleteObject(hBrush_blue);
-    }
-}
+int mode = 0;
+int colorMode = 0;
 
 // 윈도우 프로시저
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_LBUTTONDOWN:
     {
+        isMouseLButtonPressed = true;
         startPoint.x = LOWORD(lParam);
         startPoint.y = HIWORD(lParam);
     }
     break;
-    case WM_LBUTTONUP:
+    case WM_MOUSEMOVE:
     {
-        endPoint.x = LOWORD(lParam);
-        endPoint.y = HIWORD(lParam);
+        if (isMouseLButtonPressed) {
+            endPoint.x = LOWORD(lParam);
+            endPoint.y = HIWORD(lParam);
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
     }
     break;
+    case WM_LBUTTONUP:
+        isMouseLButtonPressed = false;
+        break;
     case WM_COMMAND:
         if (LOWORD(wParam) == 1) {
             // 첫 번째 버튼 클릭
-            isBoxVisible = true;
-            InvalidateRect(hWnd, NULL, TRUE);
+            mode = 1;
         }
         else if (LOWORD(wParam) == 2) {
             // 두 번째 버튼 클릭
-            isBoxVisible = false;
-            InvalidateRect(hWnd, NULL, TRUE);
+            mode = 2;
         }
         else if (LOWORD(wParam) == 3) {
-            // 두 번째 버튼 클릭
-            isEllipseVisible = true;
-            InvalidateRect(hWnd, NULL, TRUE);
+            // 세 번째 버튼 클릭
+            mode = 3;
+        }
+        else if (LOWORD(wParam) == 4) {
+            // 네 번째 버튼 클릭
+            colorMode = 1;
         }
         break;
+
     case WM_PAINT: {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
-        DrawBox(hWnd, hdc);
-        DrawEllipse(hWnd, hdc, startPoint, endPoint);
+        RECT rect;
+        GetClientRect(hWnd, &rect);
+        HBRUSH whiteBrush = (HBRUSH)(COLOR_WINDOW + 1);
+        FillRect(hdc, &rect, whiteBrush);
+
+        HBRUSH hBrush;
+        if (colorMode == 1) {
+            hBrush = CreateSolidBrush(RGB(0, 0, 255));
+        }
+        else {
+            hBrush = CreateSolidBrush(RGB(28, 219, 241));
+        }
+        SelectObject(hdc, hBrush);
+
+        if (mode == 1) {
+            startPoint2.x = startPoint.x + 30;
+            startPoint2.y = startPoint.y - 30;
+            endPoint2.x = endPoint.x + 30;
+            endPoint2.y = endPoint.y - 30;
+            /*POINT vertices1[4] = {
+                {endPoint.x,startPoint.y},
+                {endPoint.x,endPoint.y},
+                {endPoint2.x,endPoint2.y},
+                {endPoint2.x,startPoint2.y}
+            };
+            POINT vertices2[4] = {
+                {startPoint.x, startPoint.y},
+                {startPoint2.x,startPoint2.y},
+                {endPoint2.x,startPoint2.y},
+                {endPoint.x,startPoint.y}
+            };
+            POINT vertices3[4] = {
+                {startPoint.x, startPoint.y},
+                {startPoint2.x,startPoint2.y},
+                {startPoint2.x,endPoint2.y},
+                {startPoint.x,endPoint.y}
+            };
+            POINT vertices4[4] = {
+                {startPoint.x,endPoint.y},
+                {startPoint2.x,endPoint2.y},
+                {endPoint2.x,endPoint2.y},
+                {endPoint.x,endPoint.y}
+            };
+            Rectangle(hdc, startPoint2.x, startPoint2.y, endPoint2.x, endPoint2.y);
+            Polygon(hdc, vertices4, 4);
+            Polygon(hdc, vertices3, 4);
+            Polygon(hdc, vertices2, 4);
+            Polygon(hdc, vertices1, 4);
+            Rectangle(hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);*/
+            POINT vertices[6][4] = {
+            {{startPoint2.x,startPoint2.y},
+             {startPoint2.x,endPoint2.y},
+             {endPoint2.x,endPoint2.y},
+             {endPoint2.x,startPoint2.y}},
+
+            {{startPoint.x,endPoint.y},
+             {startPoint2.x,endPoint2.y},
+             {endPoint2.x,endPoint2.y},
+             {endPoint.x,endPoint.y}},
+
+            {{startPoint.x, startPoint.y},
+             {startPoint2.x,startPoint2.y},
+             {startPoint2.x,endPoint2.y},
+             {startPoint.x,endPoint.y}},
+
+            {{startPoint.x, startPoint.y},
+             {startPoint2.x,startPoint2.y},
+             {endPoint2.x,startPoint2.y},
+             {endPoint.x,startPoint.y}},
+
+            {{endPoint.x,startPoint.y},
+             {endPoint.x,endPoint.y},
+             {endPoint2.x,endPoint2.y},
+             {endPoint2.x,startPoint2.y}},
+
+            {{startPoint.x,startPoint.y},
+             {startPoint.x,endPoint.y},
+             {endPoint.x,endPoint.y},
+             {endPoint.x,startPoint.y}}
+            };
+            for (int i = 0; i < 6; i++) {
+                Polygon(hdc, vertices[i], 4);
+            }
+        }
+        else if (mode == 2) {
+            Rectangle(hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+        }
+        else if (mode == 3) {
+            Ellipse(hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+        }
+        DeleteObject(hBrush);
         EndPaint(hWnd, &ps);
-        break;
     }
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -104,12 +185,16 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
         20, 20, 60, 60, hWnd, (HMENU)1, hInstance, NULL);
 
     hButton2 = CreateWindow(
-        L"BUTTON", L"Remove Box", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 200, 60, 60, hWnd, (HMENU)2, hInstance, NULL);
+        L"BUTTON", L"rectangle", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 100, 60, 60, hWnd, (HMENU)2, hInstance, NULL);
 
     hButton3 = CreateWindow(
         L"BUTTON", L"ellipse", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        20, 350, 60, 60, hWnd, (HMENU)3, hInstance, NULL);
+        20, 180, 60, 60, hWnd, (HMENU)3, hInstance, NULL);
+
+    hButton4 = CreateWindow(
+        L"BUTTON", L"blue", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+        20, 260, 60, 60, hWnd, (HMENU)4, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
