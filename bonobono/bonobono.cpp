@@ -8,10 +8,17 @@ HWND hDrawingArea;
 HWND hButton1, hButton2, hButton3, hButton4, hButton5;
 POINT startPoint = { 0 };
 POINT endPoint = { 0 };
-POINT startPoint2 = { 0 };
-POINT endPoint2 = { 0 };
+POINT bonoMustacheStart[4] = { {320,295},{323,332},{478,281},{480,325} };
+POINT bonoMustacheEnd[4] = { {359,302},{365,313},{435,301},{437,316} };
+POINT bonoEyeLineStart[4] = { {260,230},{260,270},{530,230},{530,270} };
+POINT bonoEyeLineEnd[4] = { {290,250},{290,250},{500,250},{500,250} };
+HBRUSH bonoBody = CreateSolidBrush(RGB(127, 200, 255));
+HBRUSH bonoMouse = CreateSolidBrush(RGB(255, 150, 255));
+HBRUSH bonoWhite = CreateSolidBrush(RGB(255, 255, 255));
+HBRUSH bonoBlack = CreateSolidBrush(RGB(0, 0, 0));
 
 bool isMouseLButtonPressed = false;
+bool bonoEyeClose = false;
 
 int mode = 0;
 int marginSize = 8;
@@ -106,6 +113,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         }
         break;
 
+    case WM_LBUTTONUP:
+        InvalidateRect(hWnd, NULL, TRUE);
+        break;
+
+    case WM_RBUTTONDOWN:
+        bonoEyeClose = true;
+        InvalidateRect(hWnd, NULL, TRUE);
+        break;
+
+    case WM_RBUTTONUP:
+        if (bonoEyeClose == true) {
+            bonoEyeClose = false;
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        break;
+
+    case WM_KEYDOWN:
+        if (wParam == VK_SPACE) {
+            bonoEyeClose = true;
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        break;
+
+    case WM_KEYUP:
+        if (bonoEyeClose == true) {
+            bonoEyeClose = false;
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
+        break;
+
     case WM_PAINT: {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hWnd, &ps);
@@ -121,11 +158,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         RECT box = { marginSize,
             marginSize,
-            800 - (marginSize),
-            480 - (marginSize)
+            800 - marginSize,
+            480 - marginSize
         };
 
         FillRect(hdc, &box, boxColorBrush);
+
+        RECT drawArea = { marginSize * 2,
+            marginSize * 4 + buttonHeight,
+            800 - (marginSize * 2),
+            480 - (marginSize * 2) };
+        Rectangle(hdc, drawArea.left, drawArea.top, drawArea.right, drawArea.bottom);
 
         if (mode == 1) {
 
@@ -134,16 +177,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         }
         else if (mode == 3) {
-            HBRUSH hBrush = CreateSolidBrush(RGB(127, 200, 255));
-            SelectObject(hdc, hBrush);
-            Ellipse(hdc, 200, 90, 600, 460);
-            DeleteObject(hBrush);
-            EndPaint(hWnd, &ps);
+            SelectObject(hdc, bonoBody);
+            Ellipse(hdc, 205, 100, 595, 460);
+            SelectObject(hdc, bonoMouse);
+            Ellipse(hdc, 375, 290, 425, 385);
+            SelectObject(hdc, bonoWhite);
+            Ellipse(hdc, 340, 280, 400, 330);
+            Ellipse(hdc, 400, 280, 460, 330);
+            SelectObject(hdc, bonoBlack);
+            Ellipse(hdc, 380, 270, 420, 305);
+            for (int i = 0; i < 4;i++) {
+                MoveToEx(hdc, bonoMustacheStart[i].x, bonoMustacheStart[i].y, NULL);
+                LineTo(hdc, bonoMustacheEnd[i].x, bonoMustacheEnd[i].y);
+            }
+            if (!bonoEyeClose) {
+                Ellipse(hdc, 260, 250, 275, 275);
+                Ellipse(hdc, 527, 250, 542, 275);
+                SelectObject(hdc, bonoWhite);
+                Ellipse(hdc, 263, 255, 271, 270);
+                Ellipse(hdc, 530, 255, 538, 270);
+            }
+            else {
+                for (int i = 0; i < 4;i++) {
+                    MoveToEx(hdc, bonoEyeLineStart[i].x, bonoEyeLineStart[i].y, NULL);
+                    LineTo(hdc, bonoEyeLineEnd[i].x, bonoEyeLineEnd[i].y);
+                }
+            }
+        }
+        else if (mode == 4) {
+
+        }
+        else if (mode == 5) {
+
         }
 
         EndPaint(hWnd, &ps);
     }
-                 break;
+        break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
@@ -176,19 +246,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
     hButton2 = CreateWindow(
         L"BUTTON", L"Circle", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        184, 16, buttonWidth, buttonHeight, hWnd, (HMENU)2, hInstance, NULL);
+        169, 16, buttonWidth, buttonHeight, hWnd, (HMENU)2, hInstance, NULL);
 
     hButton3 = CreateWindow(
         L"BUTTON", L"Bonobono", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        352, 16, buttonWidth, buttonHeight, hWnd, (HMENU)3, hInstance, NULL);
+        327, 16, buttonWidth, buttonHeight, hWnd, (HMENU)3, hInstance, NULL);
 
     hButton4 = CreateWindow(
         L"BUTTON", L"Ryan", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        520, 16, buttonWidth, buttonHeight, hWnd, (HMENU)4, hInstance, NULL);
+        485, 16, buttonWidth, buttonHeight, hWnd, (HMENU)4, hInstance, NULL);
 
     hButton5 = CreateWindow(
         L"BUTTON", L"Cube", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        688, 16, buttonWidth, buttonHeight, hWnd, (HMENU)5, hInstance, NULL);
+        643, 16, buttonWidth, buttonHeight, hWnd, (HMENU)5, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
