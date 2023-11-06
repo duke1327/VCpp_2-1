@@ -103,7 +103,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             mode = 2;
         }
         else if (LOWORD(wParam) == 3) {
+            SetFocus(hWnd);
             mode = 3;
+            InvalidateRect(hWnd, NULL, TRUE);
         }
         else if (LOWORD(wParam) == 4) {
             mode = 4;
