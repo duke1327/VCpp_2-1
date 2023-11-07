@@ -17,17 +17,22 @@ POINT bonoMustacheStart[4] = { {320,295},{323,332},{478,281},{480,325} };
 POINT bonoMustacheEnd[4] = { {359,302},{365,313},{435,301},{437,316} };
 POINT bonoEyeLineStart[4] = { {260,230},{260,270},{530,230},{530,270} };
 POINT bonoEyeLineEnd[4] = { {290,250},{290,250},{500,250},{500,250} };
-//색깔 브러쉬
+// 색깔 브러쉬
 HBRUSH boxColor = CreateSolidBrush(RGB(115, 250, 255));
 HBRUSH circleColor = CreateSolidBrush(RGB(185, 85, 255));
 HBRUSH bonoBody = CreateSolidBrush(RGB(127, 200, 255));
 HBRUSH bonoMouse = CreateSolidBrush(RGB(255, 150, 255));
 HBRUSH bonoWhite = CreateSolidBrush(RGB(255, 255, 255));
 HBRUSH bonoBlack = CreateSolidBrush(RGB(0, 0, 0));
-//그리기 영역
+HBRUSH ryanColor = CreateSolidBrush(RGB(255, 200, 15));
+// 그리기 영역
 RECT drawArea;
-//사각형 미리 정의
+// 사각형 미리 정의
 RECT rectangle;
+// 라이언 좌표
+RECT ryanEar1;
+RECT ryanEar2;
+RECT ryanFace;
 
 bool isMouseLButtonPressed = false;
 bool isMouseRButtonPressed = false;
@@ -72,7 +77,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
     case WM_LBUTTONDOWN:
     {
         isMouseLButtonPressed = true;
-        if (mode == 1 || mode == 2) {
+        if (mode == 1 || mode == 2 || mode == 4) {
             startPoint.x = LOWORD(lParam);
             startPoint.y = HIWORD(lParam);
         }
@@ -98,7 +103,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             //	마우스 오른쪽 버튼을 기존에 만들어진 사각형 영역 안에서 눌렀다면
             if (PtInRect(&rectangle, movedStartPoint))
             {
-                //	마우스 오른쪽 버튼이 눌린 상태인지 체크하는 변수의 값을 1(true)로 변경
                 isMouseRButtonPressed = true;
 
                 //	기존 사각형의 좌표값을 Saved 변수에 저장
@@ -197,6 +201,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             }
             InvalidateRect(hWnd, NULL, TRUE);
         }
+        else if (mode == 4 || isMouseLButtonPressed) {
+            endPoint.x = LOWORD(lParam);
+            endPoint.y = HIWORD(lParam);
+            distance.x = endPoint.x - startPoint.x;
+            distance.y = endPoint.y - startPoint.y;
+
+            ryanEar1 = { startPoint.x,startPoint.y,startPoint.x + (distance.x / 6 * 2), startPoint.y + (distance.y / 5 * 2) };
+            InvalidateRect(hWnd, NULL, TRUE);
+        }
     }
 
     case WM_KEYDOWN:
@@ -277,7 +290,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             }
         }
         else if (mode == 4) {
-
+            SelectObject(hdc, ryanColor);
+            Ellipse(hdc, ryanEar1.left, ryanEar1.top, ryanEar1.right, ryanEar1.bottom);
         }
         else if (mode == 5) {
 
