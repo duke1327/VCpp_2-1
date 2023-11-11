@@ -438,7 +438,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
         EndPaint(hWnd, &ps);
     }
-        break;
+                 break;
     case WM_SETCURSOR:
     {
         POINT pt;

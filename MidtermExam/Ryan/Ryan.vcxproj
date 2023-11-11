@@ -21,10 +21,9 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{58edfb95-767d-4197-a8f2-028fc54e2a38}</ProjectGuid>
-    <RootNamespace>midtermexam</RootNamespace>
+    <ProjectGuid>{c844a384-ed4c-4d71-9482-166ec7a97767}</ProjectGuid>
+    <RootNamespace>Ryan</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>bonobono</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -128,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bonobono.cpp" />
+    <ClCompile Include="Ryan.cpp" />
+    <ClCompile Include="YuhanCG.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="YuhanCG.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
