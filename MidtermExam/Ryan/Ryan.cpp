@@ -29,10 +29,12 @@ bool isMouseRButtonPressed = false;
 int mode = 0;
 //마진 크기 설정
 int marginSize = 8;
-int boxMargin = 16;
+int buttonMargin = 16;
 int buttonWidth = 140;
 int buttonHeight = 64;
 int bonoEyeClose = 0;
+//큐브 대각선 거리
+int diagonal = 0;
 
 // 윈도우 프로시저
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -197,6 +199,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         else if (mode == 5 && isMouseLButtonPressed) {
             endPoint.x = LOWORD(lParam);
             endPoint.y = HIWORD(lParam);
+            distance.x = endPoint.x - startPoint.x;
+            distance.y = endPoint.y - startPoint.y;
+            if (distance.x > distance.y) {
+                diagonal = distance.y / 4;
+            }
+            else {
+                diagonal = distance.x / 4;
+            }
             InvalidateRect(hWnd, NULL, TRUE);
         }
     }
@@ -257,27 +267,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             DrawRyan(hWnd, hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
         }
         else if (mode == 5) {
-            startPoint2.x = startPoint.x + 30;
-            startPoint2.y = startPoint.y - 30;
-            endPoint2.x = endPoint.x + 30;
-            endPoint2.y = endPoint.y - 30;
+            startPoint2.x = startPoint.x + diagonal;
+            startPoint2.y = startPoint.y - diagonal;
+            endPoint2.x = endPoint.x + diagonal;
+            endPoint2.y = endPoint.y - diagonal;
             if (startPoint.x > endPoint.x && startPoint.y > endPoint.y) {
-                startPoint2.x = startPoint.x - 30;
-                startPoint2.y = startPoint.y + 30;
-                endPoint2.x = endPoint.x - 30;
-                endPoint2.y = endPoint.y + 30;
+                startPoint2.x = startPoint.x - diagonal;
+                startPoint2.y = startPoint.y + diagonal;
+                endPoint2.x = endPoint.x - diagonal;
+                endPoint2.y = endPoint.y + diagonal;
             }
             else if (startPoint.x > endPoint.x) {
-                startPoint2.x = startPoint.x - 30;
-                startPoint2.y = startPoint.y - 30;
-                endPoint2.x = endPoint.x - 30;
-                endPoint2.y = endPoint.y - 30;
+                startPoint2.x = startPoint.x - diagonal;
+                startPoint2.y = startPoint.y - diagonal;
+                endPoint2.x = endPoint.x - diagonal;
+                endPoint2.y = endPoint.y - diagonal;
             }
             else if (startPoint.y > endPoint.y) {
-                startPoint2.x = startPoint.x + 30;
-                startPoint2.y = startPoint.y + 30;
-                endPoint2.x = endPoint.x + 30;
-                endPoint2.y = endPoint.y + 30;
+                startPoint2.x = startPoint.x + diagonal;
+                startPoint2.y = startPoint.y + diagonal;
+                endPoint2.x = endPoint.x + diagonal;
+                endPoint2.y = endPoint.y + diagonal;
             }
 
             POINT vertices[6][4] = {
@@ -382,25 +392,25 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
     hButton2 = CreateWindow(
         L"BUTTON", L"Circle", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        169, (marginSize * 2),
-        buttonWidth, buttonHeight, 
+        (marginSize * 2) + buttonWidth + buttonMargin, (marginSize * 2),
+        buttonWidth, buttonHeight,
         hWnd, (HMENU)2, hInstance, NULL);
 
     hButton3 = CreateWindow(
         L"BUTTON", L"Bonobono", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        327, (marginSize * 2),
-        buttonWidth, buttonHeight, 
+        (marginSize * 2) + (buttonWidth * 2) + (buttonMargin * 2), (marginSize * 2),
+        buttonWidth, buttonHeight,
         hWnd, (HMENU)3, hInstance, NULL);
 
     hButton4 = CreateWindow(
         L"BUTTON", L"Ryan", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        485, (marginSize * 2),
+        (marginSize * 2) + (buttonWidth * 3) + (buttonMargin * 3), (marginSize * 2),
         buttonWidth, buttonHeight, 
         hWnd, (HMENU)4, hInstance, NULL);
 
     hButton5 = CreateWindow(
         L"BUTTON", L"Cube", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        643, (marginSize * 2),
+        (marginSize * 2) + (buttonWidth * 4) + (buttonMargin * 4), (marginSize * 2),
         buttonWidth, buttonHeight, 
         hWnd, (HMENU)5, hInstance, NULL);
 
