@@ -27,7 +27,7 @@ RECT ryanNose2;
 RECT ryanEye1;
 RECT ryanEye2;
 
-void YuhanCG::DrawBonobono(HWND hWnd, HDC hdc, int blink)
+void DrawBonobono(HWND hWnd, HDC hdc, int blink)
 {
     SelectObject(hdc, bonoBody);
     Ellipse(hdc, 205, 100, 595, 460);
@@ -57,7 +57,7 @@ void YuhanCG::DrawBonobono(HWND hWnd, HDC hdc, int blink)
     }
 }
 
-void YuhanCG::DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom)
+void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom)
 {
     mouseDistance.x = right - left;
     mouseDistance.y = bottom - top;

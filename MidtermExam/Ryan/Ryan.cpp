@@ -21,8 +21,6 @@ HBRUSH circleColor = CreateSolidBrush(RGB(185, 85, 255));
 RECT drawArea;
 // 사각형 미리 정의
 RECT rectangle;
-// 유한 객체 생성
-YuhanCG yuhan;
 
 bool isMouseLButtonPressed = false;
 bool isMouseRButtonPressed = false;
@@ -253,17 +251,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             Ellipse(hdc, startPoint.x, startPoint.y, endPointSaved.x, endPointSaved.y);
         }
         else if (mode == 3) {
-            yuhan.DrawBonobono(hWnd, hdc, bonoEyeClose);
+            DrawBonobono(hWnd, hdc, bonoEyeClose);
         }
         else if (mode == 4) {
-            yuhan.DrawRyan(hWnd, hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+            DrawRyan(hWnd, hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
         }
         else if (mode == 5) {
             startPoint2.x = startPoint.x + 30;
             startPoint2.y = startPoint.y - 30;
             endPoint2.x = endPoint.x + 30;
             endPoint2.y = endPoint.y - 30;
-            if (startPoint.x > endPoint.x) {
+            if (startPoint.x > endPoint.x && startPoint.y > endPoint.y) {
+                startPoint2.x = startPoint.x - 30;
+                startPoint2.y = startPoint.y + 30;
+                endPoint2.x = endPoint.x - 30;
+                endPoint2.y = endPoint.y + 30;
+            }
+            else if (startPoint.x > endPoint.x) {
                 startPoint2.x = startPoint.x - 30;
                 startPoint2.y = startPoint.y - 30;
                 endPoint2.x = endPoint.x - 30;
@@ -282,32 +286,45 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                  {startPoint2.x, endPoint2.y},
                  {endPoint2.x, endPoint2.y},
                  {endPoint2.x, startPoint2.y}},
-                 //아랫면
-                 {{startPoint.x, endPoint.y},
-                  {startPoint2.x, endPoint2.y},
-                  {endPoint2.x, endPoint2.y},
-                  {endPoint.x, endPoint.y}},
-                  //왼쪽면
-                  {{startPoint.x, startPoint.y},
-                   {startPoint2.x, startPoint2.y},
-                   {startPoint2.x, endPoint2.y},
-                   {startPoint.x, endPoint.y}},
-                   //오른쪽면
-                    {{endPoint.x, startPoint.y},
-                    {endPoint.x, endPoint.y},
-                    {endPoint2.x, endPoint2.y},
-                    {endPoint2.x, startPoint2.y}},
-                    //윗면
-                    {{startPoint.x, startPoint.y},
-                     {startPoint2.x, startPoint2.y},
-                     {endPoint2.x, startPoint2.y},
-                     {endPoint.x, startPoint.y}},
-                     //앞면
-                     {{startPoint.x, startPoint.y},
-                      {startPoint.x, endPoint.y},
-                      {endPoint.x, endPoint.y},
-                      {endPoint.x, startPoint.y}}
+                //아랫면
+                {{startPoint.x, endPoint.y},
+                {startPoint2.x, endPoint2.y},
+                {endPoint2.x, endPoint2.y},
+                {endPoint.x, endPoint.y}},
+                //왼쪽면
+                {{startPoint.x, startPoint.y},
+                {startPoint2.x, startPoint2.y},
+                {startPoint2.x, endPoint2.y},
+                {startPoint.x, endPoint.y}},
+                //오른쪽면
+                {{endPoint.x, startPoint.y},
+                {endPoint.x, endPoint.y},
+                {endPoint2.x, endPoint2.y},
+                {endPoint2.x, startPoint2.y}},
+                //윗면
+                {{startPoint.x, startPoint.y},
+                {startPoint2.x, startPoint2.y},
+                {endPoint2.x, startPoint2.y},
+                {endPoint.x, startPoint.y}},
+                //앞면
+                {{startPoint.x, startPoint.y},
+                {startPoint.x, endPoint.y},
+                {endPoint.x, endPoint.y},
+                {endPoint.x, startPoint.y}}
             };
+            /*
+            if (startPoint.x > endPoint.x && startPoint.y > endPoint.y) {
+                POINT temp[4] = { 0 };
+                for (int i = 0; i < 4; i++) {
+                    temp[i] = vertices[1][i];
+                    vertices[2][i] = vertices[3][i];
+                    vertices[3][i] = temp[i];
+                }
+                for (int j = 0; j < 6; j++) {
+                    Polygon(hdc, vertices[j], 4);
+                }
+            }
+            */
             for (int i = 0; i < 6; i++) {
                 Polygon(hdc, vertices[i], 4);
             }
@@ -359,23 +376,33 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
     hButton1 = CreateWindow(
         L"BUTTON", L"Box", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        16, 16, buttonWidth, buttonHeight, hWnd, (HMENU)1, hInstance, NULL);
+        (marginSize * 2), (marginSize * 2),
+        buttonWidth, buttonHeight,
+        hWnd, (HMENU)1, hInstance, NULL);
 
     hButton2 = CreateWindow(
         L"BUTTON", L"Circle", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        169, 16, buttonWidth, buttonHeight, hWnd, (HMENU)2, hInstance, NULL);
+        169, (marginSize * 2),
+        buttonWidth, buttonHeight, 
+        hWnd, (HMENU)2, hInstance, NULL);
 
     hButton3 = CreateWindow(
         L"BUTTON", L"Bonobono", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        327, 16, buttonWidth, buttonHeight, hWnd, (HMENU)3, hInstance, NULL);
+        327, (marginSize * 2),
+        buttonWidth, buttonHeight, 
+        hWnd, (HMENU)3, hInstance, NULL);
 
     hButton4 = CreateWindow(
         L"BUTTON", L"Ryan", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        485, 16, buttonWidth, buttonHeight, hWnd, (HMENU)4, hInstance, NULL);
+        485, (marginSize * 2),
+        buttonWidth, buttonHeight, 
+        hWnd, (HMENU)4, hInstance, NULL);
 
     hButton5 = CreateWindow(
         L"BUTTON", L"Cube", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        643, 16, buttonWidth, buttonHeight, hWnd, (HMENU)5, hInstance, NULL);
+        643, (marginSize * 2),
+        buttonWidth, buttonHeight, 
+        hWnd, (HMENU)5, hInstance, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
