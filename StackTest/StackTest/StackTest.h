@@ -17,4 +17,6 @@ private:
 	};
 
 	Node* top;
+
+	bool emptyFlag;
 };

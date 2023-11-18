@@ -15,12 +15,13 @@ void y_stack::push(int num) {
     newNode->data = num;
     newNode->next = top;
     top = newNode;
+    emptyFlag = true;
 }
 
 int y_stack::pop() {
     if (top == nullptr) {
         cout << "스택이 비었습니다!" << endl;
-        return -1;
+        exit(1);
     }
 
     int num = top->data;
