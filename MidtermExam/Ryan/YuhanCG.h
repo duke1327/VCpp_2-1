@@ -1,6 +1,10 @@
 #pragma once
 #include <windows.h>
 
+void DrawBox(HWND hWnd, HDC hdc, int left, int top, int right, int bottom);
+
+void DrawCircle(HWND hWnd, HDC hdc, int left, int top, int right, int bottom);
+
 void DrawBonobono(HWND hWnd, HDC hdc, int blink);
 
 void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom);

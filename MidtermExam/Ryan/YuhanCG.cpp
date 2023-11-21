@@ -17,6 +17,8 @@ POINT cubeEndPoint = { 0 }; // 큐브 앞면 끝점
 POINT cubeStartPoint2 = { 0 }; // 큐브 뒷면 시작점
 POINT cubeEndPoint2 = { 0 }; // 큐브 뒷면 끝점
 // 색깔 브러쉬
+HBRUSH boxColor = CreateSolidBrush(RGB(115, 250, 255));
+HBRUSH circleColor = CreateSolidBrush(RGB(185, 85, 255));
 HBRUSH bonoBody = CreateSolidBrush(RGB(127, 200, 255));
 HBRUSH bonoMouse = CreateSolidBrush(RGB(255, 150, 255));
 HBRUSH whiteColor = CreateSolidBrush(RGB(255, 255, 255));
@@ -33,8 +35,20 @@ RECT ryanEye2;
 
 int diagonal = 0;
 
-void DrawBonobono(HWND hWnd, HDC hdc, int blink)
-{
+//박스
+void DrawBox(HWND hWnd, HDC hdc, int left, int top, int right, int bottom) {
+    SelectObject(hdc, boxColor);
+    Rectangle(hdc, left, top, right, bottom);
+}
+
+//원
+void DrawCircle(HWND hWnd, HDC hdc, int left, int top, int right, int bottom) {
+    SelectObject(hdc, circleColor);
+    Ellipse(hdc, left, top, right, bottom);
+}
+
+//보노보노
+void DrawBonobono(HWND hWnd, HDC hdc, int blink) {
     SelectObject(hdc, bonoBody);
     Ellipse(hdc, 205, 100, 595, 460);
     SelectObject(hdc, bonoMouse);
@@ -63,8 +77,8 @@ void DrawBonobono(HWND hWnd, HDC hdc, int blink)
     }
 }
 
-void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom)
-{
+//라이언
+void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom) {
     mouseDistance.x = right - left;
     mouseDistance.y = bottom - top;
 
@@ -121,6 +135,7 @@ void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom)
     }
 }
 
+//큐브
 void DrawCube(HWND hWnd, HDC hdc, int left, int top, int right, int bottom) {
     if (left < right)
         mouseDistance.x = right - left;

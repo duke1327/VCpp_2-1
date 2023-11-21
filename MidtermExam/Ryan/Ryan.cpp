@@ -4,6 +4,7 @@
 HINSTANCE hInst;
 HWND hWnd;
 HWND hButton1, hButton2, hButton3, hButton4, hButton5; // 버튼
+
 POINT startPoint = { 0 }; // 시작점
 POINT endPoint = { 0 }; // 끝점
 POINT startPoint2 = { 0 }; // 큐브 뒷면 시작점
@@ -15,9 +16,6 @@ POINT movedEndPoint = { 0 }; // 이동된 끝점
 
 POINT distance = { 0 }; // 마우스 이동거리
 POINT distanceLine = { 0 }; // 원 크기 조절 이동거리
-// 색깔 브러쉬
-HBRUSH boxColor = CreateSolidBrush(RGB(115, 250, 255));
-HBRUSH circleColor = CreateSolidBrush(RGB(185, 85, 255));
 // 그리기 영역
 RECT drawArea;
 // 사각형 미리 정의
@@ -116,9 +114,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
                 //	기존 사각형의 좌표값을 Saved 변수에 저장
                 if (startPoint.x > endPoint.x && startPoint.y > startPoint.y) {
-                    startPointSaved.x = rectangle.right;
+                    startPointSaved.x = rectangle.left;
                     startPointSaved.y = rectangle.bottom;
-                    endPointSaved.x = rectangle.left;
+                    endPointSaved.x = rectangle.right;
                     endPointSaved.y = rectangle.top;
                 }
                 else if (startPoint.x > endPoint.x) {
@@ -302,12 +300,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         Rectangle(hdc, drawArea.left, drawArea.top, drawArea.right, drawArea.bottom);
 
         if (mode == 1) {
-            SelectObject(hdc, boxColor);
-            Rectangle(hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
+            DrawBox(hWnd, hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
         }
         else if (mode == 2) {
-            SelectObject(hdc, circleColor);
-            Ellipse(hdc, startPoint.x, startPoint.y, endPointSaved.x, endPointSaved.y);
+            DrawCircle(hWnd, hdc, startPoint.x, startPoint.y, endPointSaved.x, endPointSaved.y);
         }
         else if (mode == 3) {
             DrawBonobono(hWnd, hdc, bonoEyeClose);
