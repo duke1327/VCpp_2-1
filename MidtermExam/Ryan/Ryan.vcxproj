@@ -131,6 +131,7 @@
     <ClCompile Include="YuhanCG.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="WindowStack.h" />
     <ClInclude Include="YuhanCG.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

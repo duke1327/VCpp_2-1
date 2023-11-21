@@ -12,10 +12,7 @@ POINT startPointSaved = { 0 }; // 기존 시작점 저장
 POINT endPointSaved = { 0 }; // 기존 끝점 저장
 POINT movedStartPoint = { 0 }; // 이동된 시작점
 POINT movedEndPoint = { 0 }; // 이동된 끝점
-POINT cubeStartPoint = { 0 }; // 큐브 앞면 시작점
-POINT cubeEndPoint = { 0 }; // 큐브 앞면 끝점
-POINT cubeStartPoint2 = { 0 }; // 큐브 뒷면 시작점
-POINT cubeEndPoint2 = { 0 }; // 큐브 뒷면 끝점
+
 POINT distance = { 0 }; // 마우스 이동거리
 POINT distanceLine = { 0 }; // 원 크기 조절 이동거리
 // 색깔 브러쉬
@@ -37,8 +34,6 @@ int buttonMargin = 16;
 int buttonWidth = 140;
 int buttonHeight = 64;
 int bonoEyeClose = 0;
-//큐브 대각선 거리
-int diagonal = 0;
 
 // 윈도우 프로시저
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -84,7 +79,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         {
             isMouseLButtonPressed = false;
         }
-        InvalidateRect(hWnd, NULL, TRUE);
+        InvalidateRect(hWnd, &drawArea, TRUE);
     }
     break;
 
@@ -154,7 +149,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
         if (isMouseRButtonPressed) {
             isMouseRButtonPressed = false;
         }
-        InvalidateRect(hWnd, NULL, TRUE);
+        InvalidateRect(hWnd, &drawArea, TRUE);
     }
     break;
 
@@ -170,7 +165,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             rectangle.right = max(startPoint.x, endPoint.x);
             rectangle.bottom = max(startPoint.y, endPoint.y);
 
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &drawArea, TRUE);
         }
         else if (mode == 1 && isMouseRButtonPressed)
         {
@@ -187,7 +182,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             rectangle.right = endPointSaved.x + distance.x;
             rectangle.bottom = endPointSaved.y + distance.y;
 
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &drawArea, TRUE);
         }
         else if (mode == 2 && isMouseLButtonPressed) {
             endPoint.x = LOWORD(lParam);
@@ -202,7 +197,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                 endPointSaved.x = endPoint.x;
                 endPointSaved.y = startPoint.y + distance.x;
             }
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &drawArea, TRUE);
         }
         else if (mode == 2 && isMouseRButtonPressed) {
             movedEndPoint.x = LOWORD(lParam);
@@ -229,35 +224,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
                     endPointSaved.y = startPoint.y + (distance.x / i);
                 }
             }
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &drawArea, TRUE);
         }
         else if (mode == 4 && isMouseLButtonPressed) {
             endPoint.x = LOWORD(lParam);
             endPoint.y = HIWORD(lParam);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &drawArea, TRUE);
         }
         else if (mode == 5 && isMouseLButtonPressed) {
             endPoint.x = LOWORD(lParam);
             endPoint.y = HIWORD(lParam);
-            if (startPoint.x < endPoint.x)
-                distance.x = endPoint.x - startPoint.x;
-            else
-                distance.x = startPoint.x - endPoint.x;
-            if (startPoint.y < endPoint.y)
-                distance.y = endPoint.y - startPoint.y;
-            else
-                distance.y = startPoint.y - endPoint.y;
-            if (distance.x > distance.y) { // 큐브 길이 조절 조건 설정
-                diagonal = distance.y / 4;
-            }
-            else {
-                diagonal = distance.x / 4;
-            }
+            
             rectangle.left = min(startPoint.x, endPoint.x);
             rectangle.top = min(startPoint.y, endPoint.y);
             rectangle.right = max(startPoint.x, endPoint.x);
             rectangle.bottom = max(startPoint.y, endPoint.y);
-            InvalidateRect(hWnd, NULL, TRUE);
+            InvalidateRect(hWnd, &drawArea, TRUE);
         }
         else if (mode == 5 && isMouseRButtonPressed)
         {
@@ -334,84 +316,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             DrawRyan(hWnd, hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
         }
         else if (mode == 5) {
-            cubeStartPoint.x = startPoint.x;
-            cubeStartPoint.y = startPoint.y + diagonal;
-            cubeEndPoint.x = endPoint.x - diagonal;
-            cubeEndPoint.y = endPoint.y;
-            cubeStartPoint2.x = startPoint.x + diagonal;
-            cubeStartPoint2.y = startPoint.y;
-            cubeEndPoint2.x = endPoint.x;
-            cubeEndPoint2.y = endPoint.y - diagonal;
-            if (startPoint.x > endPoint.x && startPoint.y > endPoint.y) {
-                cubeStartPoint.x = startPoint.x;
-                cubeStartPoint.y = startPoint.y - diagonal;
-                cubeEndPoint.x = endPoint.x + diagonal;
-                cubeEndPoint.y = endPoint.y;
-                cubeStartPoint2.x = startPoint.x - diagonal;
-                cubeStartPoint2.y = startPoint.y;
-                cubeEndPoint2.x = endPoint.x;
-                cubeEndPoint2.y = endPoint.y + diagonal;
-            }
-            else if (startPoint.x > endPoint.x) {
-                cubeStartPoint.x = startPoint.x;
-                cubeStartPoint.y = startPoint.y + diagonal;
-                cubeEndPoint.x = endPoint.x + diagonal;
-                cubeEndPoint.y = endPoint.y;
-                cubeStartPoint2.x = startPoint.x - diagonal;
-                cubeStartPoint2.y = startPoint.y;
-                cubeEndPoint2.x = endPoint.x;
-                cubeEndPoint2.y = endPoint.y - diagonal;
-            }
-            else if (startPoint.y > endPoint.y) {
-                cubeStartPoint.x = startPoint.x;
-                cubeStartPoint.y = startPoint.y - diagonal;
-                cubeEndPoint.x = endPoint.x - diagonal;
-                cubeEndPoint.y = endPoint.y;
-                cubeStartPoint2.x = startPoint.x + diagonal;
-                cubeStartPoint2.y = startPoint.y;
-                cubeEndPoint2.x = endPoint.x;
-                cubeEndPoint2.y = endPoint.y + diagonal;
-            }
-            POINT vertices[6][4] = {
-                //뒷면
-                {{cubeStartPoint2.x, cubeStartPoint2.y},
-                 {cubeStartPoint2.x, cubeEndPoint2.y},
-                 {cubeEndPoint2.x, cubeEndPoint2.y},
-                 {cubeEndPoint2.x, cubeStartPoint2.y}},
-                 //아랫면
-                 {{cubeStartPoint.x, cubeEndPoint.y},
-                 {cubeStartPoint2.x, cubeEndPoint2.y},
-                 {cubeEndPoint2.x, cubeEndPoint2.y},
-                 {cubeEndPoint.x, cubeEndPoint.y}},
-                 //왼쪽면
-                 {{cubeStartPoint.x, cubeStartPoint.y},
-                 {cubeStartPoint2.x, cubeStartPoint2.y},
-                 {cubeStartPoint2.x, cubeEndPoint2.y},
-                 {cubeStartPoint.x, cubeEndPoint.y}},
-                 //오른쪽면
-                 {{cubeEndPoint.x, cubeStartPoint.y},
-                 {cubeEndPoint.x, cubeEndPoint.y},
-                 {cubeEndPoint2.x, cubeEndPoint2.y},
-                 {cubeEndPoint2.x, cubeStartPoint2.y}},
-                 //윗면
-                 {{cubeStartPoint.x, cubeStartPoint.y},
-                 {cubeStartPoint2.x, cubeStartPoint2.y},
-                 {cubeEndPoint2.x, cubeStartPoint2.y},
-                 {cubeEndPoint.x, cubeStartPoint.y}},
-                 //앞면
-                 {{cubeStartPoint.x, cubeStartPoint.y},
-                 {cubeStartPoint.x, cubeEndPoint.y},
-                 {cubeEndPoint.x, cubeEndPoint.y},
-                 {cubeEndPoint.x, cubeStartPoint.y}}
-            };
-            for (int i = 0; i < 6; i++) {
-                Polygon(hdc, vertices[i], 4);
-            }
+            DrawCube(hWnd, hdc, startPoint.x, startPoint.y, endPoint.x, endPoint.y);
         }
 
         EndPaint(hWnd, &ps);
     }
-                 break;
+        break;
     case WM_SETCURSOR:
     {
         POINT pt;

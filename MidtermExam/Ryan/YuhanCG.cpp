@@ -2,6 +2,7 @@
 
 POINT mouseDistance = { 0 }; // 마우스 이동거리
 POINT ryanDistance = { 0 }; // 라이언 얼굴 길이
+POINT cubeDistance = { 0 }; // 큐브 길이
 // 보노보노 수염 지정 좌표
 POINT bonoMustacheStart[4] = { {320,295},{323,332},{478,281},{480,325} };
 POINT bonoMustacheEnd[4] = { {359,302},{365,313},{435,301},{437,316} };
@@ -12,6 +13,10 @@ POINT ryanEyeBrowStart1 = { 0 };
 POINT ryanEyeBrowEnd1 = { 0 };
 POINT ryanEyeBrowStart2 = { 0 };
 POINT ryanEyeBrowEnd2 = { 0 };
+POINT cubeStartPoint = { 0 }; // 큐브 앞면 시작점
+POINT cubeEndPoint = { 0 }; // 큐브 앞면 끝점
+POINT cubeStartPoint2 = { 0 }; // 큐브 뒷면 시작점
+POINT cubeEndPoint2 = { 0 }; // 큐브 뒷면 끝점
 // 색깔 브러쉬
 HBRUSH bonoBody = CreateSolidBrush(RGB(127, 200, 255));
 HBRUSH bonoMouse = CreateSolidBrush(RGB(255, 150, 255));
@@ -26,6 +31,8 @@ RECT ryanNose1;
 RECT ryanNose2;
 RECT ryanEye1;
 RECT ryanEye2;
+
+int diagonal = 0;
 
 void DrawBonobono(HWND hWnd, HDC hdc, int blink)
 {
@@ -112,5 +119,100 @@ void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom)
         LineTo(hdc, ryanEyeBrowEnd1.x, ryanEyeBrowEnd1.y + (i * 2));
         MoveToEx(hdc, ryanEyeBrowStart2.x, ryanEyeBrowStart2.y + (i * 2), NULL);
         LineTo(hdc, ryanEyeBrowEnd2.x, ryanEyeBrowEnd2.y + (i * 2));
+    }
+}
+
+void DrawCube(HWND hWnd, HDC hdc, int left, int top, int right, int bottom) {
+    if (left < right)
+        cubeDistance.x = right - left;
+    else
+        cubeDistance.x = left - right;
+    if (top < bottom)
+        cubeDistance.y = bottom - top;
+    else
+        cubeDistance.y = top - bottom;
+
+    if (cubeDistance.x > cubeDistance.y) { // 큐브 길이 조절 조건 설정
+        diagonal = cubeDistance.y / 4;
+    }
+    else {
+        diagonal = cubeDistance.x / 4;
+    }
+
+    cubeStartPoint.x = left;
+    cubeStartPoint.y = top + diagonal;
+    cubeEndPoint.x = right - diagonal;
+    cubeEndPoint.y = bottom;
+    cubeStartPoint2.x = left + diagonal;
+    cubeStartPoint2.y = top;
+    cubeEndPoint2.x = right;
+    cubeEndPoint2.y = bottom - diagonal;
+
+    if (left > right && top > bottom) {
+        cubeStartPoint.x = left;
+        cubeStartPoint.y = top - diagonal;
+        cubeEndPoint.x = right + diagonal;
+        cubeEndPoint.y = bottom;
+        cubeStartPoint2.x = left - diagonal;
+        cubeStartPoint2.y = top;
+        cubeEndPoint2.x = right;
+        cubeEndPoint2.y = bottom + diagonal;
+    }
+    else if (left > right) {
+        cubeStartPoint.x = left;
+        cubeStartPoint.y = top + diagonal;
+        cubeEndPoint.x = right + diagonal;
+        cubeEndPoint.y = bottom;
+        cubeStartPoint2.x = left - diagonal;
+        cubeStartPoint2.y = top;
+        cubeEndPoint2.x = right;
+        cubeEndPoint2.y = bottom - diagonal;
+    }
+    else if (top > bottom) {
+        cubeStartPoint.x = left;
+        cubeStartPoint.y = top - diagonal;
+        cubeEndPoint.x = right - diagonal;
+        cubeEndPoint.y = bottom;
+        cubeStartPoint2.x = left + diagonal;
+        cubeStartPoint2.y = top;
+        cubeEndPoint2.x = right;
+        cubeEndPoint2.y = bottom + diagonal;
+    }
+
+    POINT vertices[6][4] = {
+        //뒷면
+        {{cubeStartPoint2.x, cubeStartPoint2.y},
+         {cubeStartPoint2.x, cubeEndPoint2.y},
+         {cubeEndPoint2.x, cubeEndPoint2.y},
+         {cubeEndPoint2.x, cubeStartPoint2.y}},
+         //아랫면
+         {{cubeStartPoint.x, cubeEndPoint.y},
+         {cubeStartPoint2.x, cubeEndPoint2.y},
+         {cubeEndPoint2.x, cubeEndPoint2.y},
+         {cubeEndPoint.x, cubeEndPoint.y}},
+         //왼쪽면
+         {{cubeStartPoint.x, cubeStartPoint.y},
+         {cubeStartPoint2.x, cubeStartPoint2.y},
+         {cubeStartPoint2.x, cubeEndPoint2.y},
+         {cubeStartPoint.x, cubeEndPoint.y}},
+         //오른쪽면
+         {{cubeEndPoint.x, cubeStartPoint.y},
+         {cubeEndPoint.x, cubeEndPoint.y},
+         {cubeEndPoint2.x, cubeEndPoint2.y},
+         {cubeEndPoint2.x, cubeStartPoint2.y}},
+         //윗면
+         {{cubeStartPoint.x, cubeStartPoint.y},
+         {cubeStartPoint2.x, cubeStartPoint2.y},
+         {cubeEndPoint2.x, cubeStartPoint2.y},
+         {cubeEndPoint.x, cubeStartPoint.y}},
+         //앞면
+         {{cubeStartPoint.x, cubeStartPoint.y},
+         {cubeStartPoint.x, cubeEndPoint.y},
+         {cubeEndPoint.x, cubeEndPoint.y},
+         {cubeEndPoint.x, cubeStartPoint.y}}
+    };
+
+    for (int i = 0; i < 6; i++) {
+        Polygon(hdc, vertices[i], 4);
     }
 }
