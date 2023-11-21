@@ -2,7 +2,6 @@
 
 POINT mouseDistance = { 0 }; // 마우스 이동거리
 POINT ryanDistance = { 0 }; // 라이언 얼굴 길이
-POINT cubeDistance = { 0 }; // 큐브 길이
 // 보노보노 수염 지정 좌표
 POINT bonoMustacheStart[4] = { {320,295},{323,332},{478,281},{480,325} };
 POINT bonoMustacheEnd[4] = { {359,302},{365,313},{435,301},{437,316} };
@@ -124,19 +123,19 @@ void DrawRyan(HWND hWnd, HDC hdc, int left, int top, int right, int bottom)
 
 void DrawCube(HWND hWnd, HDC hdc, int left, int top, int right, int bottom) {
     if (left < right)
-        cubeDistance.x = right - left;
+        mouseDistance.x = right - left;
     else
-        cubeDistance.x = left - right;
+        mouseDistance.x = left - right;
     if (top < bottom)
-        cubeDistance.y = bottom - top;
+        mouseDistance.y = bottom - top;
     else
-        cubeDistance.y = top - bottom;
+        mouseDistance.y = top - bottom;
 
-    if (cubeDistance.x > cubeDistance.y) { // 큐브 길이 조절 조건 설정
-        diagonal = cubeDistance.y / 4;
+    if (mouseDistance.x > mouseDistance.y) { // 큐브 길이 조절 조건 설정
+        diagonal = mouseDistance.y / 4;
     }
     else {
-        diagonal = cubeDistance.x / 4;
+        diagonal = mouseDistance.x / 4;
     }
 
     cubeStartPoint.x = left;
